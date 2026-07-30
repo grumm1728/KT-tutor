@@ -25,6 +25,8 @@ Three legs, all in scope: the richer input channel (`8+5 = "13"` vs. `"I took 2 
 
 **The spine.** `38 + 25` via split tens and ones: `30+20=50`, then `8+5=13`, then `50+13=63`. The make-ten slip lives in the ones-place step — the student re-adds the 2 they broke off instead of the 3 left over, producing 62. Strategy correct and explicitly stated; execution slipped. A correctness-based KT sees `y=0` and decrements mastery, which is exactly backwards. That single turn carries the whole argument.
 
+> ⚠️ **The spine as written is not literature-supported and is under revision** — see [issue #12](https://github.com/grumm1728/KT-tutor/issues/12). Make-ten nests inside *incrementing*, not inside the split strategy; both primary sources state the ones step of a split as a flat retrieved fact. Don't build on this example until #12 resolves. Detail in `docs/research/cgi-strategy-taxonomy.md`.
+
 ### Two framings that carry weight
 
 - **The bottleneck is the output representation, not perception.** LLMKT *does* read student text — that is the paper's headline finding. But its output is `ẑ_jk`, a scalar per KC; the explanation can inform that number and still be unable to survive it. Do not argue the baseline "can't see" the strategy — that argument loses. Steelman it instead: grant full text access and show the scalar still can't carry "strategy intact, execution slipped."
