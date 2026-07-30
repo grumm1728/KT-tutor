@@ -23,9 +23,24 @@ The user steps the dialogue forward and watches the state on the right move. **T
 
 Three legs, all in scope: the richer input channel (`8+5 = "13"` vs. `"I took 2 off to fit with 8, then 3 more, so 13"`); conception modeling; and analysis running a beat behind realtime, handing the agent **cards** — probes that disambiguate the live competing hypotheses.
 
-**The spine.** `38 + 25` via split tens and ones: `30+20=50`, then `8+5=13`, then `50+13=63`. The make-ten slip lives in the ones-place step — the student re-adds the 2 they broke off instead of the 3 left over, producing 62. Strategy correct and explicitly stated; execution slipped. A correctness-based KT sees `y=0` and decrements mastery, which is exactly backwards. That single turn carries the whole argument.
+**The genre is a Number Talk.** Not a tutoring dialogue that happens to contain strategy talk — a *digital Number Talk* (Parrish; popularized by Boaler). An established classroom routine, inherently spoken, inherently multi-strategy, where the teacher's job is exactly what the right pane does: hear a strategy and represent it. This is what grounds the spoken commitment, not device affordances.
 
-> ⚠️ **The spine as written is not literature-supported and is under revision** — see [issue #12](https://github.com/grumm1728/KT-tutor/issues/12). Make-ten nests inside *incrementing*, not inside the split strategy; both primary sources state the ones step of a split as a flat retrieved fact. Don't build on this example until #12 resolves. Detail in `docs/research/cgi-strategy-taxonomy.md`.
+**The spine.**
+
+> **17 + 8** — *"that's 24 because 4 on this side and 4 on that side."*
+> Teacher: *"show me the 4?"*
+> *"up to 20 I mean 25. 25 because 3 on this side and 5 on that side."*
+
+The strategy — bridge to a landmark — is correct. The error is the **distance**: 17 to 20 is 3, not 4, so 20+4=24. The probe triggers self-repair.
+
+It carries the card mechanic natively (the probe disambiguates *miscounted distance* from *doubles-pull*, since 8 splits naturally into 4+4), contains authentic self-repair speech, demonstrates Carpenter et al.'s finding that bugs are "often eliminated by simple counter suggestion," and diagnoses *"distance to the nearest ten"* — a concept the project's own Cantor writing names as first-class. A correctness-based KT sees `y=0` on the first turn and decrements mastery, which is exactly backwards.
+
+**Two stress cases** that must not break the model:
+
+- `24+26` — *"two 26s are 52 and then you take 2 away."* Correct answer, **composite** strategy (doubles then compensating). The strategy-behind-a-correct-answer case.
+- `37+15` — *"it ends in a 2 and 42 is too small."* Not a computation strategy at all — reasons about properties of the answer. Justifies the escape hatch below.
+
+**What the analyzer emits:** free-text description as the primary output, aligned to the closed strategy set for visualization, with the alignment visible and an explicit **"not in this set"** escape hatch. A closed-set-only output would reintroduce multiple choice at the model layer — against the project's own claim.
 
 ### Two framings that carry weight
 
