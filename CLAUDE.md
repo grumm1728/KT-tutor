@@ -4,18 +4,35 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-Greenfield. As of 2026-07-30 the repository contains only this file and a LICENSE — no source, no build tooling. Remote: https://github.com/grumm1728/KT-tutor
+Greenfield. As of 2026-07-30 the repository contains documentation only — no source, no build tooling. Remote: https://github.com/grumm1728/KT-tutor
 
-Nothing in the Architecture or Stack sections describes existing code; they describe intent. The Source Material and Data sections *are* verified fact — they were read off the paper and the released dataset. Delete this Status section once the repo has a working build.
+Nothing in the Architecture or Stack sections describes existing code; they describe intent, and the open decisions behind them live on the [wayfinder map](https://github.com/grumm1728/KT-tutor/issues/1). The Source Material and Data sections *are* verified fact — read off the paper and the released dataset. Delete this Status section once the repo has a working build.
 
 ## What this project is
 
-A **demonstration** of an LLM-powered knowledge-tracing tutor. It is a visualization/teaching artifact, not a production tutoring system or a reimplementation of the paper's training pipeline. Two panes, side by side on one page:
+A **demonstration** arguing that verbal explanation input, analyzed by an LLM, lets a tutor model **which conception** a student is working from — not merely whether they were right. It is a visualization artifact, not a production tutoring system or a reimplementation of the paper's training pipeline. The artifact is generic and names no company.
 
-- **Left — the student's view.** A tutor dialogue rendered inside a phone outline. This is what a learner would see.
-- **Right — the model's view.** A live visualization of the knowledge-tracing state: per-KC mastery estimates and how each student turn updates them.
+Scarlatos et al. (2025) is the **baseline it departs from**, not the thing it reproduces. The paper's own abstract says analyzing misconceptions in dialogue tutoring has been hard, then collapses every student turn to one bit of correctness. This project picks up the thread the paper names and drops.
 
-The user steps a dialogue forward and watches the belief state on the right move in response to the turn on the left. **The coupling between the two panes is the whole point.** A change that lets the phone advance without the KT panel visibly reflecting *why* has broken the demo, even if both panes still render.
+Two panes, side by side:
+
+- **Left — the student's view.** A tutor dialogue rendered inside a phone outline.
+- **Right — the model's view.** The conception state: a distribution over named strategies, plus — when a correctly-stated strategy produced a wrong result — competing explanations of the gap, each tagged **conceptual** or **procedural**.
+
+The user steps the dialogue forward and watches the state on the right move. **The coupling between the two panes is the whole point.** A change that lets the phone advance without the model panel visibly reflecting *why* has broken the demo, even if both panes still render.
+
+Three legs, all in scope: the richer input channel (`8+5 = "13"` vs. `"I took 2 off to fit with 8, then 3 more, so 13"`); conception modeling; and analysis running a beat behind realtime, handing the agent **cards** — probes that disambiguate the live competing hypotheses.
+
+**The spine.** `38 + 25` via split tens and ones: `30+20=50`, then `8+5=13`, then `50+13=63`. The make-ten slip lives in the ones-place step — the student re-adds the 2 they broke off instead of the 3 left over, producing 62. Strategy correct and explicitly stated; execution slipped. A correctness-based KT sees `y=0` and decrements mastery, which is exactly backwards. That single turn carries the whole argument.
+
+### Two framings that carry weight
+
+- **The bottleneck is the output representation, not perception.** LLMKT *does* read student text — that is the paper's headline finding. But its output is `ẑ_jk`, a scalar per KC; the explanation can inform that number and still be unable to survive it. Do not argue the baseline "can't see" the strategy — that argument loses. Steelman it instead: grant full text access and show the scalar still can't carry "strategy intact, execution slipped."
+- **Conceptions are knowledge in transition, not bugs** (Smith, diSessa & Roschelle 1994). The right pane must never render a conception as a defect with a red ✗.
+
+### Planning lives on the wayfinder map
+
+Open decisions are tracked as decision tickets on [issue #1](https://github.com/grumm1728/KT-tutor/issues/1), labelled `wayfinder:map`, with native sub-issue and blocking edges. **Check the map before proposing design work** — the stack, the strategy vocabulary, the baseline pipeline, and the precompute format are all still open, and guessing at them duplicates a ticket.
 
 ## Source material
 
@@ -81,11 +98,13 @@ The two datasets have incompatible terms, and this determines which one the demo
 
 **MathDial** is CC BY-SA 4.0 — training, deriving, publishing, and public deployment are all fine with attribution, with ShareAlike propagating to derived data.
 
-**Decision: MathDial is the demo's data. CoMTA is local-only and never trained on.**
+**Decision: the demo ships hand-authored content. CoMTA is local-only and never trained on. MathDial is a fallback, not the plan.**
 
-- Anything that ships — committed fixtures, the deployed page, screenshots in a talk — uses MathDial or hand-authored dialogues. Attribute MathDial; expect ShareAlike on derived trajectories.
+Amended 2026-07-30 after charting the wayfinder map. The demo's argument turns on *verbal strategy talk* — "I took 2 off to fit with 8" — and **no released dataset contains that input type.** MathDial is typed dialogue from GPT-3.5-simulated students and crowdworkers roleplaying on word problems; CoMTA is Khanmigo transcripts. Neither has authentic young-learner strategy explanation. So the demo content is authored from scratch, which also sidesteps both licenses entirely.
+
+- Anything that ships — committed fixtures, the deployed page, screenshots in a talk — is **authored content**. If MathDial is ever used for a shipped fixture, attribute it and expect ShareAlike on derived data.
 - CoMTA stays gitignored and is used only for internal sanity-checking: verifying ingest reproduces Table 1, eyeballing whether trajectories match the paper. That is evaluation, which the license permits.
-- **Do not fit any model on CoMTA** — including BKT. Fitting per-KC prior/learn/guess/slip by EM is model training, which condition 1 names explicitly. Fit on MathDial.
+- **Do not fit any model on CoMTA** — including BKT. Fitting per-KC prior/learn/guess/slip by EM is model training, which condition 1 names explicitly. Fit on MathDial or on authored content.
 
 Two traps worth stating plainly, because both are easy to rationalize into:
 
@@ -100,15 +119,17 @@ If CoMTA specifically is wanted later — its Table 3 dialogue is a good demo sc
 
 Intended, not yet built.
 
-- **The KT model is domain logic.** Its own module, a pure `update(state, turn) -> state`, no rendering imports, runnable headlessly over a dataset. The right pane is a view over its output.
-- **Every update must be inspectable.** Show prior → evidence → posterior per KC, not just a final number. A black-box update defeats the purpose.
-- **Deterministic and replayable.** Same dialogue in, same trajectory out.
+- **The model is domain logic.** Its own module, no rendering imports, runnable headlessly. The right pane is a view over its output.
+- **Every update must be inspectable.** Each hypothesis exposes the utterance fragment that triggered it. This is the demo's validation story: it claims *plausibility and inspectability*, not accuracy — there is no ground truth for "this utterance evidences component-swap." A black-box update defeats the purpose.
+- **Deterministic and replayable.** Same path through the dialogue, same state.
 
-**The central constraint: LLMKT cannot run in a browser.** It is a LoRA fine-tune of an 8B model. Any demo claiming to show LLMKT must therefore either (a) replay **precomputed** per-turn mastery values captured offline, or (b) run a lightweight model live and *label it as such*. Note that the reference repo ships **no** precomputed predictions — `results/` is empty, so option (a) requires actually training LLMKT on a GPU first. BKT is the only model here that is honestly implementable client-side; if that is what runs, the UI must say so rather than implying it is the paper's method. Do not let the demo blur this. Note that both routes are constrained by licensing — see below: fit BKT on MathDial, never on CoMTA.
+**Nothing infers at runtime.** Because branching is scripted, the dialogue tree is finite: a build step runs the analysis over every node offline and ships the results as static data. No API key, no server, no non-determinism. Adding a branch means re-running the pass. The shipped artifact is the whole of what the right pane knows.
+
+This also resolves what used to be the central constraint. LLMKT cannot run in a browser — it is a LoRA fine-tune of an 8B model, and the reference repo ships no precomputed predictions (`results/` is empty). That no longer blocks anything, because the demo precomputes its own analysis over authored content rather than replaying the paper's model. The **baseline** view is a separate matter — see the map's baseline ticket; it must be steelmanned, not strawmanned.
 
 ## Stack
 
-Undecided — settle with Scott before scaffolding. The binding constraint is browser-shareability. Replace this section with real install / dev / test / lint commands once chosen, including how to run a single test.
+Undecided — tracked as [issue #5](https://github.com/grumm1728/KT-tutor/issues/5) on the map. Constraints already fixed: static browser-shareable page, no runtime inference, no API key, values precomputed offline and shipped as data, with a build step baking them in. Replace this section with real install / dev / test / lint commands once chosen, including how to run a single test.
 
 ## Agent skills
 
