@@ -73,14 +73,28 @@ Applying rule 1 to `comta_atc.csv` reproduces the paper's Table 1 exactly: 623 l
 
 Dialogues are short: 2–22 turns, mean 5.9.
 
-### Licensing — affects what can be committed
+### Licensing — decided 2026-07-30
 
-This repo is public. The two datasets have incompatible terms:
+The two datasets have incompatible terms, and this determines which one the demo is built on.
 
-- **CoMTA** (`COMTA_LICENSE.txt`, © Khan Academy) permits *internal, non-commercial model evaluation only* and **expressly prohibits redistribution or publication**, including of derivatives. It must not be committed here, and mastery trajectories derived from it are themselves derivatives. Keep it local and gitignored.
-- **MathDial** is CC BY-SA 4.0 — redistributable with attribution, but ShareAlike propagates to derived data.
+**CoMTA** (`COMTA_LICENSE.txt`, © Khan Academy) grants use *internally, solely for evaluating AI models*, by authorized users *within the same entity*. Condition 1 prohibits redistribution, publication, **and model training**; condition 4 makes derivatives inherit all of it.
 
-So: **hand-authored or synthetic dialogues are the safe default for anything committed.** Use the real datasets locally for validation. Confirm with Scott before committing any file derived from either.
+**MathDial** is CC BY-SA 4.0 — training, deriving, publishing, and public deployment are all fine with attribution, with ShareAlike propagating to derived data.
+
+**Decision: MathDial is the demo's data. CoMTA is local-only and never trained on.**
+
+- Anything that ships — committed fixtures, the deployed page, screenshots in a talk — uses MathDial or hand-authored dialogues. Attribute MathDial; expect ShareAlike on derived trajectories.
+- CoMTA stays gitignored and is used only for internal sanity-checking: verifying ingest reproduces Table 1, eyeballing whether trajectories match the paper. That is evaluation, which the license permits.
+- **Do not fit any model on CoMTA** — including BKT. Fitting per-KC prior/learn/guess/slip by EM is model training, which condition 1 names explicitly. Fit on MathDial.
+
+Two traps worth stating plainly, because both are easy to rationalize into:
+
+1. **Repo visibility does not decide this.** The repo and the deployed demo are separate publication surfaces. Making the repo private and shipping a public demo containing CoMTA-derived content is the same violation with an extra step. Privacy only ever addresses the redistribution prong — never the training or purpose restrictions.
+2. **"Same entity" is narrower than "private."** Sharing CoMTA with a collaborator at another institution is outside the grant even in a private repo.
+
+MathDial is also the better substrate on the merits: 2,823 dialogues vs. 153, and the paper's models perform far better on it (76.7% vs. 65.8% AUC).
+
+If CoMTA specifically is wanted later — its Table 3 dialogue is a good demo script — the clean route is requesting permission from Khan Academy, as the paper's authors did (see their acknowledgments). Do not route around this by paraphrasing CoMTA dialogues into "synthetic" ones; condition 4 covers derivatives.
 
 ## Architecture
 
@@ -90,7 +104,7 @@ Intended, not yet built.
 - **Every update must be inspectable.** Show prior → evidence → posterior per KC, not just a final number. A black-box update defeats the purpose.
 - **Deterministic and replayable.** Same dialogue in, same trajectory out.
 
-**The central constraint: LLMKT cannot run in a browser.** It is a LoRA fine-tune of an 8B model. Any demo claiming to show LLMKT must therefore either (a) replay **precomputed** per-turn mastery values captured offline, or (b) run a lightweight model live and *label it as such*. Note that the reference repo ships **no** precomputed predictions — `results/` is empty, so option (a) requires actually training LLMKT on a GPU first. BKT is the only model here that is honestly implementable client-side; if that is what runs, the UI must say so rather than implying it is the paper's method. Do not let the demo blur this.
+**The central constraint: LLMKT cannot run in a browser.** It is a LoRA fine-tune of an 8B model. Any demo claiming to show LLMKT must therefore either (a) replay **precomputed** per-turn mastery values captured offline, or (b) run a lightweight model live and *label it as such*. Note that the reference repo ships **no** precomputed predictions — `results/` is empty, so option (a) requires actually training LLMKT on a GPU first. BKT is the only model here that is honestly implementable client-side; if that is what runs, the UI must say so rather than implying it is the paper's method. Do not let the demo blur this. Note that both routes are constrained by licensing — see below: fit BKT on MathDial, never on CoMTA.
 
 ## Stack
 

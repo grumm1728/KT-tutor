@@ -1,0 +1,18 @@
+# --- Licensed data: see the Licensing section in CLAUDE.md before removing anything here ---
+# CoMTA (© Khan Academy) may not be redistributed, published, or trained on.
+# It is local-only. These patterns are the enforcement of that decision.
+comta*
+CoMTA*
+*_comta_*
+data/local/
+
+# MathDial is CC BY-SA 4.0 and MAY be committed with attribution, but the raw
+# annotated CSVs are ~122MB. Commit derived fixtures, not these.
+mathdial_*_atc.csv
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
