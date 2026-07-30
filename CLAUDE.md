@@ -109,3 +109,17 @@ Intended, not yet built.
 ## Stack
 
 Undecided — settle with Scott before scaffolding. The binding constraint is browser-shareability. Replace this section with real install / dev / test / lint commands once chosen, including how to run a single test.
+
+## Agent skills
+
+### Issue tracker
+
+Issues and PRDs live as GitHub issues in `grumm1728/KT-tutor`, managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical triage roles, using their default label strings. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context — `CONTEXT.md` and `docs/adr/` at the repo root. See `docs/agents/domain.md`.
