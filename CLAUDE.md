@@ -17,7 +17,7 @@ Scarlatos et al. (2025) is the **baseline it departs from**, not the thing it re
 Two panes, side by side:
 
 - **Left — the student's view.** A tutor dialogue rendered inside a phone outline.
-- **Right — the model's view.** The conception state: a distribution over named strategies, plus — when a correctly-stated strategy produced a wrong result — competing explanations of the gap, each tagged **conceptual** or **procedural**.
+- **Right — the model's view.** The conception state: **component ideas with polarity** — revealed present, revealed not-yet, or ambiguous — each carrying the utterance fragment that evidences it, grouped into six clusters.
 
 The user steps the dialogue forward and watches the state on the right move. **The coupling between the two panes is the whole point.** A change that lets the phone advance without the model panel visibly reflecting *why* has broken the demo, even if both panes still render.
 
@@ -40,7 +40,19 @@ It carries the card mechanic natively (the probe disambiguates *miscounted dista
 - `24+26` — *"two 26s are 52 and then you take 2 away."* Correct answer, **composite** strategy (doubles then compensating). The strategy-behind-a-correct-answer case.
 - `37+15` — *"it ends in a 2 and 42 is too small."* Not a computation strategy at all — reasons about properties of the answer. Justifies the escape hatch below.
 
-**What the analyzer emits:** free-text description as the primary output, aligned to the closed strategy set for visualization, with the alignment visible and an explicit **"not in this set"** escape hatch. A closed-set-only output would reintroduce multiple choice at the model layer — against the project's own claim.
+**What the analyzer emits:** free-text description as the primary output, aligned onto the component set for visualization, with the alignment visible and an explicit **"not in this set"** escape hatch. A closed-set-only output would reintroduce multiple choice at the model layer — against the project's own claim.
+
+### The state model
+
+Settled in [#6](https://github.com/grumm1728/KT-tutor/issues/6). The traced state is **component ideas**, not strategies — strategy names live only in the free-text description.
+
+- **The grain is Minstrell's *facets*** — clusters of 2–6 pieces around one situation, derived from what students actually say, each coded by how problematic it is. Operationalized as DIAGNOSER in the late 1980s; descended from diSessa's knowledge-in-pieces, which this project already cites. **Position the work as populating an established layer for early arithmetic, not as inventing a unit of analysis** — the latter is unfalsifiable and loses.
+- **Six clusters, fifteen components, provenance marked** per component (cited / adapted / reused / coined). Four are coined and the artifact must say so, on the same logic that exposes the triggering fragment.
+- **Independent confidences, not a distribution.** A simplex renders `24+26`'s genuine doubles-*and*-compensating as *uncertainty between* them. Independent values also match the baseline's `ẑ_jk`, so the toggle compares like with like.
+- **No ordinal levels.** Representational progressions (counting-order → discrete/path → continuous/length) are *sibling components in a cluster*, because the research shows they conflict rather than nest (Solomon et al. 2015).
+- **No gap-explanation layer and no conceptual/procedural tag.** Both withdrawn. Rival components inside a cluster carry that meaning, and the tag actively mislabelled the spine's error as a procedural slip when it is "hatch mark counting" (Kwon et al. 2024) — a documented stage signature persisting into middle school.
+
+Detail in `docs/research/component-grain-frameworks.md`.
 
 ### Two framings that carry weight
 
