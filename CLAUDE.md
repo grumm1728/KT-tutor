@@ -159,7 +159,40 @@ This also resolves what used to be the central constraint. LLMKT cannot run in a
 
 ## Stack
 
-Undecided — tracked as [issue #5](https://github.com/grumm1728/KT-tutor/issues/5) on the map. Constraints already fixed: static browser-shareable page, no runtime inference, no API key, values precomputed offline and shipped as data, with a build step baking them in. Replace this section with real install / dev / test / lint commands once chosen, including how to run a single test.
+Settled in [#5](https://github.com/grumm1728/KT-tutor/issues/5). **TypeScript end-to-end**, npm, Vite + React, plain CSS, Vitest, ESLint 9 flat config with `typescript-eslint` — the same shape as `algebuds`, `splitcoins`, and `apps/v-game-app` in `scottfarrar-site`. No Tailwind.
+
+**One language because one schema.** The component-state schema lives in `src/model/types.ts` and is imported by both the offline pass and the page. A second language would define it twice and let it drift, and drift here shows up as the right pane rendering something the analysis did not mean — the failure this project calls a broken demo.
+
+```bash
+npm install          # install
+npm run dev          # vite dev server
+npm run build        # tsc -b && vite build  → dist/
+npm test             # vitest run
+npm run lint         # eslint .
+npm run precompute   # node scripts/precompute.ts — the offline analysis pass
+```
+
+Run a single test file:
+
+```bash
+npx vitest run src/model/invariants.test.ts
+```
+
+**Layout**, enforcing the architecture constraint that the model is domain logic:
+
+- `src/model/` — headless, runs under Node, **no imports from `src/ui/`**
+- `src/model/types.ts` — the single schema
+- `src/model/invariants.test.ts` — walks the committed data and asserts what the artifact claims: provenance on every component, a triggering fragment on every hypothesis, confidences independent rather than summing to 1, no component rendered as a defect
+- `src/ui/` — the two panes
+- `scripts/precompute.ts` — the offline pass
+- `data/` — its committed output (shape is [#10](https://github.com/grumm1728/KT-tutor/issues/10)'s call)
+- `local/` — **gitignored**: CoMTA, plus one throwaway Python script for the Table 1 sanity check
+
+**Node 22.18 strips TypeScript natively**, so `scripts/precompute.ts` runs under plain `node` with no `tsx` dependency. Stripping erases types without checking them — `tsc` in `npm run build` is what type-checks the pass. Imports need explicit `.ts` extensions.
+
+**Python is not a toolchain here.** No `requirements.txt`, nothing in CI. It exists only as that one gitignored script, because CoMTA's CSVs are Python literals and `ast.literal_eval` is one line against a hand-written parser in TS — for data that never ships.
+
+**Deploy:** its own Vercel project, static `dist/`, `base: './'`, no router. Built subpath-safe so it can later be vendored into `scottfarrar-site` the way `apps/v-game-app` is, without a rewrite.
 
 ## Agent skills
 
